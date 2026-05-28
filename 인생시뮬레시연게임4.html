@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다시 한 번, 나의 인생 점수</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3d3d3d;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
+            color: #e0e7ff;
+        }
+
+        .period-badge {
+            display: inline-block;
+            background: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        /* 📊 엔딩 화면용 최종 스탯 박스 스타일 */
+        .final-stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: #222;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .stat-val {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        /* 🖼️ 이미지 스타일 */
+        .story-img-container {
+            width: 100%;
+            height: 220px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .story-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 메인 콘텐츠 영역 */
+        .content-box {
+            min-height: 120px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            white-space: pre-line;
+        }
+
+        /* 선택지 버튼 */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            background: #3d3d3d;
+            color: var(--text-color);
+            border: 2px solid transparent;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+
+        button:hover {
+            background: #4a4a4a;
+            border-color: var(--primary);
+        }
+
+        .btn-start {
+            text-align: center;
+            background: var(--primary);
+            font-weight: bold;
+        }
+        .btn-start:hover {
+            background: var(--primary-hover);
+        }
+
+        .ending-title {
+            font-size: 1.4rem;
+            color: #fbbf24;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .bad-title {
+            color: #ef4444 !important;
+        }
+
+        .quote {
+            font-style: italic;
+            color: #93c5fd;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #222;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <header>
+        <h1 id="game-title">다시 한 번, 나의 인생 점수</h1>
+        <span class="period-badge" id="period-tag">오프닝</span>
+    </header>
+
+    <div class="story-img-container" id="img-area" style="display: none;">
+        <img src="" id="story-picture" class="story-img" alt="스토리 이미지">
+    </div>
+
+    <div class="content-box" id="story-text">
+        당신은 지금 차가운 침대에 누워 눈을 감기 직전입니다. 지나온 삶을 돌아보니 오직 후회뿐입니다. 
+
+        '그때 다른 선택을 했더라면 어땠을까...?' 
+        
+        그 순간, 의문의 목소리가 내면에서 들려옵니다. 
+        "당신에게 단 한 번의 기회를 주겠습니다. 처음부터 다시 살아보시겠습니까?"
+    </div>
+
+    <div class="options-container" id="options-box">
+        <button class="btn-start" onclick="startGame()">네, 다시 살겠습니다.</button>
+    </div>
+</div>
+
+<script>
+    // 게임 내부 상태 변수 (화면에는 출력되지 않음)
+    let ach = 50;
+    let rel = 50;
+    let integrity = 50;
+    let currentStep = 0;
+
+    // 시나리오 데이터
+    const script = [
+        {
+            period: "유년기 (초등)",
+            img: "딜레마1.png",
+            story: "짝꿍이 새로 산 최고급 학용품을 교실에 두고 갔습니다. 아무도 보는 사람이 없습니다. 평소 내가 정말 갖고 싶었던 물건입니다.",
+            options: [
+                { text: "아무도 안 보니까 몰래 가방에 넣는다.", effect: { ach: 10, rel: 0, int: -15 } },
+                { text: "챙겨두었다가 내일 짝꿍에게 돌려준다.", effect: { ach: 0, rel: 10, int: 10 } }
+            ]
+        },
+        {
+            period: "유년기 (초등)",
+            img: "딜레마2.png",
+            story: "우리 반의 소외된 친구를 주동해서 괴롭히던 일진 무리가 나에게 다가와 과자를 주며 말합니다.\n\"너도 쟤 싫지? 우리랑 같이 놀자!\"\n이 무리에 끼지 않으면 다음 타겟은 내가 될 수도 있습니다.",
+            options: [
+                { text: "무서우니 우선 무리에 합류해 그 친구를 같이 외면한다.", effect: { ach: 0, rel: 15, int: -25 } },
+                { text: "싫다고 거절하고 소외된 친구의 편에 서준다.", effect: { ach: 0, rel: -20, int: 25 } }
+            ]
+        },
+        {
+            period: "유년기 (초등)",
+            img: "딜레마2.png",
+            story: "학교 과학 경진대회 날입니다. 부모님이 밤새 대신 만들어준 완벽한 로봇이 있습니다. 이걸 내면 무조건 1등이지만, 내가 직접 만든 허술한 로봇을 내면 탈락할 것이 뻔합니다.",
+            options: [
+                { text: "부모님이 만들어준 로봇을 내가 만든 척 제출해 1등을 한다.", effect: { ach: 25, rel: 0, int: -20 } },
+                { text: "실력은 없지만 내가 직접 땀 흘려 만든 로봇을 제출한다.", effect: { ach: -20, rel: 0, int: 20 } }
+            ]
+        },
+        {
+            period: "청소년기 (중·고등)",
+            img: "딜레마4.png",
+            story: "내일은 인생이 걸린 중요한 시험입니다. 그런데 밤늦은 시간, 가장 친한 친구가 울면서 전화를 했습니다.\n\"지금 너무 힘들어서 나쁜 생각이 들어, 제발 와줘...\"",
+            options: [
+                { text: "친구에게 미안하다고 한 뒤 전화를 끊고 밤새 시험공부를 한다.", effect: { ach: 25, rel: -25, int: 0 } },
+                { text: "시험을 포기하고 친구에게 달려가 밤새 곁을 지킨다.", effect: { ach: -20, rel: 25, int: 0 } }
+            ]
+        },
+        {
+            period: "청소년기 (중·고등)",
+            img: "딜레마3.png",
+            story: "내 절친이 이번 기말고사 시험지를 교무실에서 우연히 훔쳐본 것을 알게 되었습니다. 친구는 나에게만 비밀로 해달라며 눈물로 부탁합니다.",
+            options: [
+                { text: "친구의 미래와 의리를 위해 철저히 비밀을 지켜준다.", effect: { ach: 0, rel: 20, int: -30 } },
+                { text: "선생님께 말씀드려 시험의 공정성을 바로잡는다.", effect: { ach: 0, rel: -35, int: 25 } }
+            ]
+        },
+        {
+            period: "청소년기 (중·고등)",
+            img: "딜레마4.png",
+            story: "나는 꼭 이루고 싶은 예술적 꿈이 있습니다. 하지만 집안 형편이 갑자기 나빠졌습니다. 부모님은 내가 꿈을 접고 안정적인 취업 기술을 배우길 간절히 바라십니다.",
+            options: [
+                { text: "부모님의 마음을 편하게 해드리기 위해 꿈을 접고 취업 준비를 한다.", effect: { ach: -20, rel: 20, int: 0 } },
+                { text: "부모님과 갈등이 생기더라도 내 꿈을 끝까지 밀고 나간다.", effect: { ach: 25, rel: -25, int: 0 } }
+            ]
+        },
+        {
+            period: "청년기 (대학·사회초년생)",
+            img: "딜레마5.png",
+            story: "대기업 인턴이 되었습니다. 그런데 우리 팀의 핵심 프로젝트가 타사의 기술을 무단 도용한 것임을 알게 되었습니다. 침묵하면 정직원이 되지만, 고발하면 쫓겨납니다.",
+            options: [
+                { text: "모른 척 침묵하고 프로젝트를 성공시켜 정직원이 된다.", effect: { ach: 30, rel: 0, int: -30 } },
+                { text: "내부 고발을 통해 진실을 밝히고 인턴에서 해고당한다.", effect: { ach: -25, rel: 10, int: 30 } }
+            ]
+        },
+        {
+            period: "청년기 (대학·사회초년생)",
+            img: "딜레마6.png",
+            story: "평생을 바쳐 준비한 국가 자격증 시험 날, 앞자리 사람의 답안지가 너무 적나라하게 보입니다. 한 문제만 슬쩍 베끼면 합격이고, 안 보면 1년을 더 백수로 고생해야 합니다.",
+            options: [
+                { text: "딱 한 문제만 슬쩍 훔쳐보고 눈감아 합격선을 넘긴다.", effect: { ach: 35, rel: 0, int: -25 } },
+                { text: "끝까지 내 실력으로만 풀고 당당한 낙방을 받아들인다.", effect: { ach: -25, rel: 0, int: 25 } }
+            ]
+        },
+        {
+            period: "장년기 (어른의 삶)",
+            img: "딜레마7.png",
+            story: "내가 회사의 팀장이 되었습니다. 구조조정으로 팀원 중 한 명을 해고해야 합니다.\n후보: [실력 최고인 인성 파탄 직원] vs [실력 부족하지만 세 자녀를 키우는 착한 가장]",
+            options: [
+                { text: "철저한 능력 중심! 세 자녀의 가장을 해고해 팀 실적을 지킨다.", effect: { ach: 25, rel: 0, int: -25 } },
+                { text: "온정 중심! 실력은 좋지만 인성이 나쁜 직원을 해고한다.", effect: { ach: -20, rel: 0, int: 20 } }
+            ]
+        },
+        {
+            period: "노년기 (마지막 선택)",
+            img: "딜레마9.png",
+            story: "내가 몹시 아파 병원에 누워 숨만 쉬고 있습니다. 이 연명 치료를 지속하면 가족들의 전 재산이 병원비로 날아가고, 중단하면 나는 곧 사망합니다.",
+            options: [
+                { text: "조금이라도 더 살기 위해 연명 치료 유지를 선택한다.", effect: { ach: 20, rel: -35, int: 0 } },
+                { text: "남겨질 가족들을 위해 연명 치료 거부 문서에 서명한다.", effect: { ach: 0, rel: 25, int: 25 } }
+            ]
+        }
+    ];
+
+    function startGame() {
+        document.getElementById('img-area').style.display = 'flex';
+        nextStep();
+    }
+
+    function nextStep() {
+        // ⚠️ 어떤 스탯이든 0 이하가 되면 즉시 배드엔딩 트리거
+        if (ach <= 0 || rel <= 0 || integrity <= 0) {
+            showBadEnding();
+            return;
+        }
+
+        if (currentStep < script.length) {
+            let currentData = script[currentStep];
+            document.getElementById('period-tag').innerText = currentData.period;
+            document.getElementById('story-text').innerText = currentData.story;
+            document.getElementById('story-picture').src = currentData.img;
+
+            let optionsHtml = "";
+            currentData.options.forEach((opt, index) => {
+                optionsHtml += `<button onclick="handleChoice(${index})">${opt.text}</button>`;
+            });
+            document.getElementById('options-box').innerHTML = optionsHtml;
+        } else {
+            showEnding();
+        }
+    }
+
+    function handleChoice(index) {
+        let effects = script[currentStep].options[index].effect;
+        
+        // 내부 연산만 수행 (화면 노출 없음)
+        ach += effects.ach;
+        rel += effects.rel;
+        integrity += effects.int;
+
+        currentStep++;
+        nextStep();
+    }
+
+    // 🚨 즉시 데드엔딩 화면
+    function showBadEnding() {
+        document.getElementById('period-tag').innerText = "파멸";
+        document.getElementById('story-picture').src = "배드엔딩.png";
+
+        let failedStat = [];
+        if (ach <= 0) failedStat.push("🏆성취");
+        if (rel <= 0) failedStat.push("🤝관계");
+        if (integrity <= 0) failedStat.push("⚖️양심");
+
+        document.getElementById('story-text').innerHTML = `
+            <div class="ending-title bad-title">🚨 데드엔딩: 의미 없는 인생</div>
+            <div>당신의 인생 스탯 중 <strong>[ ${failedStat.join(", ")} ]</strong> 점수가 결국 바닥(0점)을 드러냈습니다. 
+            
+            인생의 중요한 가치 기둥 중 하나가 완전히 무너지면서, 당신이 다시 바꾼 인생은 리셋되기 전보다 훨씬 더 참혹하고 무의미한 파멸을 맞이하고 말았습니다. 극단적인 선택은 인생의 균형을 깨뜨립니다.</div>
+            
+            <div class="final-stats-container">
+                <div class="stat-box"><span class="stat-label">🏆 성취</span><div class="stat-val" style="color:#ef4444">${ach}</div></div>
+                <div class="stat-box"><span class="stat-label">🤝 관계</span><div class="stat-val" style="color:#10b981">${rel}</div></div>
+                <div class="stat-box"><span class="stat-label">⚖️ 양심</span><div class="stat-val" style="color:#3b82f6">${integrity}</div></div>
+            </div>
+            <div class="quote">"어느 하나를 완전히 저버린 삶은, 결국 무너져 내리기 마련이다."</div>
+        `;
+
+        document.getElementById('options-box').innerHTML = `
+            <button class="btn-start" onclick="restartGame()">다시 살기 (처음으로)</button>
+        `;
+    }
+
+    // 🔚 최종 정상 엔딩 출력 화면
+    function showEnding() {
+        document.getElementById('period-tag').innerText = "인생의 끝";
+        let title = "";
+        let desc = "";
+        let quote = "";
+        let endImg = "";
+
+        if (ach >= 75 && integrity <= 40) {
+            title = "🥇 엔딩 1: 피라미드의 꼭대기, 차가운 황금좌";
+            desc = "당신은 세상이 말하는 가장 완벽한 '성공한 인생'을 살았습니다. 최고급 대저택의 침대에 누워 숨을 거두기 직전, 방 안에는 적막만 가득합니다. 당신의 성공을 위해 짓밟았던 사람들, 외면했던 가족들의 얼굴이 스쳐 지나갑니다. 문밖에서는 당신이 죽기도 전에 유산을 차지하려 싸우는 변호사들의 목소리만 들려옵니다.";
+            quote = "\"모든 것을 가졌지만, 나를 위해 울어줄 사람은 단 한 명도 없구나.\"";
+            endImg = "엔딩1.png";
+        } else if (rel >= 75 && ach <= 40) {
+            title = "❤️ 엔딩 2: 가난하지만 따뜻한 품";
+            desc = "평생 남을 위해 양보하고, 친구와 가족을 위해 내 기회를 포기하느라 사회적으로는 평범하다 못해 조금 가난한 삶을 살았습니다. 하지만 낡은 병실, 당신의 머리맡에는 당신이 도왔던 친구들, 당신 덕분에 꿈을 이룬 자녀들이 눈물을 흘리며 당신의 손을 꼭 잡고 온기를 나누고 있습니다.";
+            quote = "\"내 통장은 비어있지만, 내 인생의 금고는 사람으로 가득 찼구나.\"";
+            endImg = "엔딩2.png";
+        } else if (integrity >= 75 && rel <= 40) {
+            title = "⚖️ 엔딩 3: 외로운 등대, 무덤 앞의 훈장";
+            desc = "당신은 추호의 부끄러움도 없는 완벽하게 정의로운 삶을 살았습니다. 반칙을 거부했고 불의에 타협하지 않았습니다. 하지만 세상은 당신을 '피곤한 사람'이라 부르며 멀리했고 주변 사람들도 지쳐 떠나갔습니다. 쓸쓸히 홀로 눈을 감지만, 당신의 내면만큼은 거울처럼 맑고 평온합니다.";
+            quote = "\"세상은 나를 외면했을지라도, 나는 나 자신에게 당당했다.\"";
+            endImg = "엔딩3.png";
+        } else if (ach < 45 && rel < 45 && integrity < 45) {
+            title = "🚨 엔딩 4: 후회로 얼룩진 회색빛 방관자";
+            desc = "당신은 큰 악행을 저지르지도 않았지만, 무언가를 위해 용기를 내본 적도 없습니다. 괴롭힘을 방관했고, 부정의를 모른 척했으며, 내 꿈을 위해서도 치열하게 싸우지 않았습니다. 비겁함과 편안함 사이에서 줄타기하다 마주한 인생의 끝자락. 당신은 처음에 리셋되기 전 마주했던 가장 후회스럽던 모습 그대로 눈을 감습니다.";
+            quote = "\"상처받기 싫어서 아무 선택도 안 했던 삶, 그것이 가장 큰 실패였구나.\"";
+            endImg = "엔딩4.png";
+        } else {
+            title = "🌟 엔딩 5: 위대한 조율사 (진정한 행복)";
+            desc = "당신의 삶은 매 순간이 치열한 줄타기였습니다. 성공을 위해 달리면서도 가족의 손을 놓지 않았고, 양심을 지키며 손해를 보더라도 다시 일어서기 위해 피나는 노력을 했습니다. 완벽한 부자도 성인군자도 되지 못했지만, 당신은 매 순간 최선을 다해 책임을 졌습니다. 당신은 미소를 지으며 평온하게 눈을 감습니다.";
+            quote = "\"쉽지 않은 길이었다. 하지만 다시 돌아간대도 나는 이 길을 걸으리라.\"";
+            endImg = "엔딩5.png";
+        }
+
+        document.getElementById('story-picture').src = endImg;
+
+        // 결과 및 성찰용 최종 점수 공개
+        document.getElementById('story-text').innerHTML = `
+            <div class="ending-title">${title}</div>
+            <div>${desc}</div>
+            <div class="final-stats-container">
+                <div class="stat-box"><span class="stat-label">🏆 성취도</span><div class="stat-val" style="color:#ef4444">${ach}</div></div>
+                <div class="stat-box"><span class="stat-label">🤝 관계성</span><div class="stat-val" style="color:#10b981">${rel}</div></div>
+                <div class="stat-box"><span class="stat-label">⚖️ 도덕성</span><div class="stat-val" style="color:#3b82f6">${integrity}</div></div>
+            </div>
+            <div class="quote">${quote}</div>
+        `;
+
+        document.getElementById('options-box').innerHTML = `
+            <button class="btn-start" onclick="restartGame()">다시 살기 (처음으로)</button>
+        `;
+    }
+
+    function restartGame() {
+        ach = 50;
+        rel = 50;
+        integrity = 50;
+        currentStep = 0;
+        nextStep();
+    }
+</script>
+
+</body>
+</html>
